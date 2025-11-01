@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MP3ファイル一覧</title>
+<title>Free Music Library</title>
 <style>
 body {
   font-family: system-ui, sans-serif;
   background: #f9fafb;
-  color: #222;
+  color: #111;
   padding: 2rem;
 }
 h1 {
@@ -20,14 +20,19 @@ ul {
   padding: 0;
 }
 li {
-  background: white;
+  background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
-  margin: 0.5rem 0;
-  padding: 0.75rem 1rem;
+  margin: 0.4rem 0;
+  padding: 0.7rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+}
+span {
+  flex: 1;
+  margin-right: 1rem;
 }
 button {
   background: #2563eb;
@@ -36,81 +41,163 @@ button {
   border-radius: 6px;
   padding: 0.4rem 0.8rem;
   cursor: pointer;
+  margin-left: 0.5rem;
 }
 button:hover {
   background: #1d4ed8;
 }
 audio {
-  display: block;
-  margin-top: 1rem;
   width: 100%;
+  margin-top: 1rem;
 }
 </style>
 </head>
 <body>
-<h1>MP3ファイル一覧</h1>
-<ul id="file-list"><li>読み込み中...</li></ul>
-
+<h1>🎵 Free Music Library</h1>
+<ul id="file-list"></ul>
 <audio id="player" controls></audio>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
+// ------------------------------
+// GitHub Pages 用: ファイル一覧を手動定義
+// ------------------------------
+const files = [
+  "10℃ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "2_23 AM @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "8-bit Aggressive1 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "CLAP! @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Cassette Tape Dream @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Cat life @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Cooking Time @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Escort @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Flutter @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Good Morning Sunshine @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "HIRAHIRA @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Morning @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Nine Jack @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Pappa Parappa @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Parade @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Recollections @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "SUMMER TRIANGLE @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Somebody (Prod. Khaim) @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Somehow (Prod. Khaim) @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Sparkling sea @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Stream @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Sunrise @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "TALK and WALK @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Trick style @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "Will you still cry？ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "You and Me @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "ensolarado @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "orchestral_mission @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "shuffle shuffle @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "so sweet @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "swing swing @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "the opening of a book @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "いちごホイップ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "いつもの感じ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "いつもの風景 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "おどれグロッケンシュピール @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "おなじみの風景 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "おもしろすぎてどっかん @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "おやすみオルゴール @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "かえるのピアノ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "かけっこ競争 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "かわいいもふもふ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "ぐだぐだな感じ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "さみしいおばけと東京の月 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "しゅわしゅわハニーレモン350ml @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "たぬきちの冒険 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "ちょっと楽しい @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "とある日常 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "ながれぼし @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "なんでしょう？ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "なんということはない日常 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "のんきな日常 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "のんびり時間 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "はりきっちゃう時のテーマ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "ほんわかぷっぷー @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "ゆかいな日常 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "わくわくクッキングタイム的なBGM @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "アトリエと電脳世界 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "カエルの勇者 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "カナリアスキップ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "クレイジークッキング @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "サンタは中央線でやってくる @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "タイフーンパレード @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "パステルハウス @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "ヒダマリトロニカ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "ローファイ少女は今日も寝不足 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "ワスレナグサ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "夏の思い出 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "夏はsummer!! @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "学び舎の風景 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "楽しく軽快に @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "極東の羊、テレキャスターと踊る @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "午後のカフェ @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "幸せの散歩道 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "残滓念 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "自宅にて @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "週末の予定 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "週末京都現実逃避 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "春のキッチン @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "春よ、強く美しく @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "少年達の夏休み的なBGM @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "焼きそば行進曲 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "情動カタルシス @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "神隠しの真相 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "神楽謡 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "人狼の為の子守唄 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "星屑サラウンド-1chorus- @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "青空空港 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "全てが終わる夜に @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "茶屋にて @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "昼下がり気分 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "追いかけっこキャッハー @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "追跡者 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "曇った宝石 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "日曜の午後 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "木漏れ日 @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3",
+  "野良猫は宇宙を目指した @ フリーBGM DOVA-SYNDROME OFFICIAL YouTube CHANNEL.mp3"
+]
+
+document.addEventListener("DOMContentLoaded", () => {
   const list = document.getElementById("file-list");
   const player = document.getElementById("player");
 
-  // サーバがディレクトリ一覧（index of …）を返す場合
-  try {
-    const res = await fetch(".");
-    const text = await res.text();
+  files.forEach(file => {
+    const li = document.createElement("li");
+    const safeFile = encodeURIComponent(file);
+    li.innerHTML = `
+      <span>${file}</span>
+      <div>
+        <button data-play="${safeFile}">再生</button>
+        <button data-dl="${safeFile}">ダウンロード</button>
+      </div>
+    `;
+    list.appendChild(li);
+  });
 
-    // href="ファイル名.mp3" のリンクを抽出
-    const files = Array.from(text.matchAll(/href="([^"]+\.mp3)"/gi))
-      .map(m => decodeURIComponent(m[1]));
-
-    if (files.length === 0) {
-      list.innerHTML = "<li>mp3ファイルが見つかりません。</li>";
-      return;
-    }
-
-    list.innerHTML = "";
-    files.forEach(file => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <span>${file}</span>
-        <div>
-          <button data-play="${file}">再生</button>
-          <button data-dl="${file}">ダウンロード</button>
-        </div>
-      `;
-      list.appendChild(li);
+  list.querySelectorAll("[data-play]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const file = decodeURIComponent(e.target.dataset.play);
+      player.src = file;
+      player.play();
     });
+  });
 
-    // イベント登録（onclickではなく addEventListener）
-    list.querySelectorAll("[data-play]").forEach(btn => {
-      btn.addEventListener("click", e => {
-        const file = e.target.dataset.play;
-        player.src = file;
-        player.play();
-      });
+  list.querySelectorAll("[data-dl]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const file = decodeURIComponent(e.target.dataset.dl);
+      const a = document.createElement("a");
+      a.href = file;
+      a.download = file;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     });
-
-    list.querySelectorAll("[data-dl]").forEach(btn => {
-      btn.addEventListener("click", e => {
-        const file = e.target.dataset.dl;
-        const a = document.createElement("a");
-        a.href = file;
-        a.download = file.split("/").pop();
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      });
-    });
-  } catch (err) {
-    console.error(err);
-    list.innerHTML = "<li>ディレクトリ内容を取得できませんでした。</li>";
-  }
+  });
 });
 </script>
 </body>
 </html>
-
