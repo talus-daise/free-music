@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MP3ファイル一覧</title>
+<style>
+body {
+  font-family: system-ui, sans-serif;
+  background: #f9fafb;
+  color: #222;
+  padding: 2rem;
+}
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+button:hover {
+  background: #1d4ed8;
+}
+audio {
+  display: block;
+  margin-top: 1rem;
+  width: 100%;
+}
+</style>
+</head>
+<body>
+<h1>MP3ファイル一覧</h1>
+<ul id="file-list"><li>読み込み中...</li></ul>
+
+<audio id="player" controls></audio>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const list = document.getElementById("file-list");
+  const player = document.getElementById("player");
+
+  // サーバがディレクトリ一覧（index of …）を返す場合
+  try {
+    const res = await fetch(".");
+    const text = await res.text();
+
+    // href="ファイル名.mp3" のリンクを抽出
+    const files = Array.from(text.matchAll(/href="([^"]+\.mp3)"/gi))
+      .map(m => decodeURIComponent(m[1]));
+
+    if (files.length === 0) {
+      list.innerHTML = "<li>mp3ファイルが見つかりません。</li>";
+      return;
+    }
+
+    list.innerHTML = "";
+    files.forEach(file => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <span>${file}</span>
+        <div>
+          <button data-play="${file}">再生</button>
+          <button data-dl="${file}">ダウンロード</button>
+        </div>
+      `;
+      list.appendChild(li);
+    });
+
+    // イベント登録（onclickではなく addEventListener）
+    list.querySelectorAll("[data-play]").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const file = e.target.dataset.play;
+        player.src = file;
+        player.play();
+      });
+    });
+
+    list.querySelectorAll("[data-dl]").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const file = e.target.dataset.dl;
+        const a = document.createElement("a");
+        a.href = file;
+        a.download = file.split("/").pop();
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      });
+    });
+  } catch (err) {
+    console.error(err);
+    list.innerHTML = "<li>ディレクトリ内容を取得できませんでした。</li>";
+  }
+});
+</script>
+</body>
+</html>
+
